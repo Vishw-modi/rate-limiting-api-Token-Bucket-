@@ -12,7 +12,7 @@ export async function rateLimiter(req, res, next) {
 
   const key = `rate_limit:${ip}`;
 
-  const lucScrpipt = `
+  const lucScript = `
     local tokens = redis.call("GET", KEYS[1])
     
     if not tokens then
@@ -30,13 +30,7 @@ export async function rateLimiter(req, res, next) {
     return tokens - 1
     `;
 
-  const remaining = await redis.eval(
-    lucScrpipt,
-    1,
-    key,
-    MAX_TOKEN,
-    REFILL_TIME
-  );
+  const remaining = await redis.eval(lucScript, 1, key, MAX_TOKEN, REFILL_TIME);
 
   if (remaining < 0) {
     return res
